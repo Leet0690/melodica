@@ -30,6 +30,13 @@ class _ValidationModeScreenState extends State<ValidationModeScreen>
     'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si',
   };
 
+  static const _accidentalsSolfege = [
+    ['Do#', 'Réb'], ['Ré#', 'Mib'], ['Fa#', 'Solb'], ['Sol#', 'Lab'], ['La#', 'Sib'],
+  ];
+  static const _accidentalsABCD = [
+    ['C#', 'Db'], ['D#', 'Eb'], ['F#', 'Gb'], ['G#', 'Ab'], ['A#', 'Bb'],
+  ];
+
   List<String> get _activeNotes => _useABCD ? _notesABCD : _notesSolfege;
 
   @override
@@ -69,8 +76,10 @@ class _ValidationModeScreenState extends State<ValidationModeScreen>
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (_) => _NotePickerSheet(
         notes: _activeNotes,
+        accidentals: _useABCD ? _accidentalsABCD : _accidentalsSolfege,
         onNoteSelected: (note) {
           context.read<MelodyProvider>().addNote(note);
         },
@@ -507,9 +516,14 @@ class _ActionPill extends StatelessWidget {
 
 class _NotePickerSheet extends StatelessWidget {
   final List<String> notes;
+  final List<List<String>> accidentals;
   final void Function(String) onNoteSelected;
 
-  const _NotePickerSheet({required this.notes, required this.onNoteSelected});
+  const _NotePickerSheet({
+    required this.notes,
+    required this.accidentals,
+    required this.onNoteSelected,
+  });
 
   static const _notesSolfege = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
 
@@ -570,6 +584,41 @@ class _NotePickerSheet extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: color,
                       ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Notes altérées',
+            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: accidentals.map((pair) {
+              return InkWell(
+                onTap: () {
+                  onNoteSelected(pair[0]);
+                  Navigator.pop(context);
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                  ),
+                  child: Text(
+                    '${pair[0]} / ${pair[1]}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),

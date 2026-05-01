@@ -28,6 +28,22 @@ class _ManualModeScreenState extends State<ManualModeScreen>
     'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si',
   };
 
+  static const _accidentalsSolfege = [
+    ['Do#', 'Réb'],
+    ['Ré#', 'Mib'],
+    ['Fa#', 'Solb'],
+    ['Sol#', 'Lab'],
+    ['La#', 'Sib'],
+  ];
+
+  static const _accidentalsABCD = [
+    ['C#', 'Db'],
+    ['D#', 'Eb'],
+    ['F#', 'Gb'],
+    ['G#', 'Ab'],
+    ['A#', 'Bb'],
+  ];
+
   List<String> get _activeNotes => _useABCD ? _notesABCD : _notesSolfege;
 
   @override
@@ -104,6 +120,8 @@ class _ManualModeScreenState extends State<ManualModeScreen>
                       _buildSystemSelector(),
                       const SizedBox(height: 24),
                       _buildNoteKeyboard(provider),
+                      const SizedBox(height: 24),
+                      _buildAccidentals(provider),
                       const SizedBox(height: 24),
                       _buildNoteSequence(provider),
                       const SizedBox(height: 16),
@@ -190,6 +208,70 @@ class _ManualModeScreenState extends State<ManualModeScreen>
                 color: color,
                 isActive: isActive,
                 onTap: () => _onNoteTap(i, provider),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAccidentals(MelodyProvider provider) {
+    final list = _useABCD ? _accidentalsABCD : _accidentalsSolfege;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Notes altérées (enharmoniques)',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: List.generate(list.length, (i) {
+            final pair = list[i];
+            return InkWell(
+              onTap: () => provider.addNote(pair[0]),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      pair[0],
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    Text(
+                      ' / ${pair[1]}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }),

@@ -25,6 +25,23 @@ class MelodyProvider extends ChangeNotifier {
     'Sol#': 'G#', 'Lab': 'Ab', 'La#': 'A#', 'Sib': 'Bb'
   };
 
+  static const Map<String, String> enharmonics = {
+    'Do#': 'Réb',
+    'Ré#': 'Mib',
+    'Fa#': 'Solb',
+    'Sol#': 'Lab',
+    'La#': 'Sib',
+    'Réb': 'Do#',
+    'Mib': 'Ré#',
+    'Solb': 'Fa#',
+    'Lab': 'Sol#',
+    'Sib': 'La#',
+  };
+
+  String getEnharmonic(String note) {
+    return enharmonics[note] ?? '';
+  }
+
   // Charger toutes les mélodies
   Future<void> loadMelodies() async {
     _melodies = await HiveService.getAllMelodies();
