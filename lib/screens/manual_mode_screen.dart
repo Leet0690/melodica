@@ -11,7 +11,9 @@ class ManualModeScreen extends StatefulWidget {
 
 class _ManualModeScreenState extends State<ManualModeScreen> {
   final TextEditingController _nameController = TextEditingController();
-  final List<String> notes = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+  final List<String> latinNotes = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+  final List<String> angloNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+  final List<String> accidentals = ['', '#', 'b'];
 
   @override
   void dispose() {
@@ -61,17 +63,51 @@ class _ManualModeScreenState extends State<ManualModeScreen> {
                 ),
                 const SizedBox(height: 20),
 
+                // Choix du système de notation
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Système : '),
+                    ChoiceChip(
+                      label: const Text('Do-Ré-Mi'),
+                      selected: provider.isLatinSystem,
+                      onSelected: (selected) =>
+                          provider.setNotationSystem(true),
+                    ),
+                    const SizedBox(width: 10),
+                    ChoiceChip(
+                      label: const Text('A-B-C-D'),
+                      selected: !provider.isLatinSystem,
+                      onSelected: (selected) =>
+                          provider.setNotationSystem(false),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
                 // Boutons des notes
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: notes
-                      .map(
-                        (note) => ElevatedButton(
-                          onPressed: () => provider.addNote(note),
-                          child: Text(note),
-                        ),
-                      )
+                  alignment: WrapAlignment.center,
+                  children: (provider.isLatinSystem ? latinNotes : angloNotes)
+                      .expand((baseNote) => accidentals.map((acc) {
+                            final fullNote = '$baseNote$acc';
+                            // Vérifier si la note est valide (ex: Mi# ou Fab peuvent être évités si on veut simplifier, 
+                            // mais ici on suit la demande de gérer les altérations)
+                            return SizedBox(
+                              width: 65,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  backgroundColor: acc.isEmpty ? null : Colors.blueGrey[800],
+                                  foregroundColor: acc.isEmpty ? null : Colors.white,
+                                ),
+                                onPressed: () => provider.addNote(fullNote),
+                                child: Text(fullNote),
+                              ),
+                            );
+                          }))
                       .toList(),
                 ),
                 const SizedBox(height: 30),
@@ -95,7 +131,7 @@ class _ManualModeScreenState extends State<ManualModeScreen> {
                         : Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: provider.currentNotes
+                            children: provider.getDisplayNotes(provider.currentNotes)
                                 .asMap()
                                 .entries
                                 .map(

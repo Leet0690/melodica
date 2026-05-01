@@ -11,7 +11,9 @@ class ValidationModeScreen extends StatefulWidget {
 
 class _ValidationModeScreenState extends State<ValidationModeScreen> {
   final TextEditingController _nameController = TextEditingController();
-  final List<String> notes = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+  final List<String> latinNotes = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+  final List<String> angloNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+  final List<String> accidentals = ['', '#', 'b'];
   bool _isListening = false;
 
   @override
@@ -41,24 +43,38 @@ class _ValidationModeScreenState extends State<ValidationModeScreen> {
   }
 
   void _showNoteSelectionDialog() {
+    final provider = context.read<MelodyProvider>();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Sélectionner une note'),
-        content: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: notes
-              .map(
-                (note) => ElevatedButton(
-                  onPressed: () {
-                    context.read<MelodyProvider>().addNote(note);
-                    Navigator.pop(context);
-                  },
-                  child: Text(note),
-                ),
-              )
-              .toList(),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: (provider.isLatinSystem ? latinNotes : angloNotes)
+                .expand((baseNote) => accidentals.map((acc) {
+                      final fullNote = '$baseNote$acc';
+                      return SizedBox(
+                        width: 60,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            backgroundColor: acc.isEmpty ? null : Colors.blueGrey[800],
+                            foregroundColor: acc.isEmpty ? null : Colors.white,
+                          ),
+                          onPressed: () {
+                            provider.addNote(fullNote);
+                            Navigator.pop(context);
+                          },
+                          child: Text(fullNote),
+                        ),
+                      );
+                    }))
+                .toList(),
+          ),
         ),
       ),
     );
@@ -158,7 +174,7 @@ class _ValidationModeScreenState extends State<ValidationModeScreen> {
                         : Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: provider.currentNotes
+                            children: provider.getDisplayNotes(provider.currentNotes)
                                 .asMap()
                                 .entries
                                 .map(

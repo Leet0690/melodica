@@ -13,6 +13,7 @@ class MelodyDetailScreen extends StatelessWidget {
     final modeLabel = melody.mode == 'manual' ? 'Manuel' : 'Validation';
     final date =
         '${melody.createdAt.day}/${melody.createdAt.month}/${melody.createdAt.year} ${melody.createdAt.hour}:${melody.createdAt.minute.toString().padLeft(2, '0')}';
+    final provider = context.watch<MelodyProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -57,9 +58,19 @@ class MelodyDetailScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Notes
-            const Text(
-              'Notes enregistrées',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Notes enregistrées',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                TextButton.icon(
+                  onPressed: () => provider.setNotationSystem(!provider.isLatinSystem),
+                  icon: const Icon(Icons.swap_horiz, size: 18),
+                  label: Text(provider.isLatinSystem ? 'Do-Ré-Mi' : 'A-B-C-D'),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Expanded(
@@ -73,7 +84,7 @@ class MelodyDetailScreen extends StatelessWidget {
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: melody.notes
+                  children: provider.getDisplayNotes(melody.notes)
                       .asMap()
                       .entries
                       .map(
