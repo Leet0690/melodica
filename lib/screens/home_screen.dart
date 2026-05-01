@@ -88,7 +88,18 @@ class HomeScreen extends StatelessWidget {
                     Navigator.push(context, _fadeRoute(const MelodiesListScreen()));
                   },
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
+                const Text(
+                  'developped by 2237',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w300,
+                    fontStyle: FontStyle.italic,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
               ],
             ),
           ),
